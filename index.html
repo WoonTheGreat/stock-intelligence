@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock Intelligence V1</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f5f7fb}
+*{box-sizing:border-box}body{margin:0}.app{max-width:1200px;margin:auto;padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.brand{font-weight:850}.sub{font-size:13px;color:#667085;margin-top:3px}.pill{background:#e8f7ee;color:#18794e;padding:8px 12px;border-radius:99px;font-size:12px;font-weight:750}
+nav,.watch,.period{display:flex;gap:7px;overflow:auto;margin-bottom:12px}
+button{border:1px solid #e1e5eb;background:#fff;color:#667085;border-radius:9px;padding:9px 12px;cursor:pointer;white-space:nowrap}
+button.active{background:#172033;color:#fff;border-color:#172033}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:#fff;border:1px solid #e5e8ef;border-radius:15px;padding:15px;margin-top:10px;box-shadow:0 2px 8px #00000008}
+.label{font-size:11px;color:#667085}.big{font-size:25px;font-weight:850;margin-top:6px}.green{color:#17834d}.red{color:#bd3838}
+.charthead{display:flex;justify-content:space-between;align-items:center;gap:8px}.chart{width:100%;height:290px;display:block}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row,.signal{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #edf0f4}
+.badge{font-size:10px;font-weight:800;padding:4px 7px;border-radius:99px;background:#eef2f6;height:max-content}.bull .badge{background:#e8f7ee;color:#17834d}.bear .badge{background:#fdecec;color:#bd3838}
+.muted{color:#667085;font-size:12px}.hidden{display:none}
+@media(max-width:700px){.app{padding:11px}.grid{grid-template-columns:1fr 1fr}.cols{grid-template-columns:1fr}.chart{height:230px}.big{font-size:21px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div><div class="brand">STOCK INTELLIGENCE · LOCAL V1</div><div class="sub">Private personal stock dashboard</div></div><div class="pill">● Local / Private</div></header>
+
+<div class="watch"><button class="active">MU</button><button>NVDA</button><button>TSLA</button><button>AMD</button><button>＋ Add</button></div>
+
+<nav>
+<button class="active" data-page="dashboard">Dashboard</button>
+<button data-page="trend">Trend</button>
+<button data-page="signals">AI Signals</button>
+<button data-page="news">News</button>
+<button data-page="catalysts">Catalysts</button>
+</nav>
+
+<main id="dashboard">
+<div class="grid">
+<div class="card"><div class="label">PRICE</div><div class="big">$1,043.49</div></div>
+<div class="card"><div class="label">1 WEEK</div><div class="big green">+12.9%</div></div>
+<div class="card"><div class="label">VOLUME</div><div class="big">27.1M</div></div>
+<div class="card"><div class="label">TREND</div><div class="big green">Bullish</div></div>
+</div>
+
+<div class="card">
+<div class="charthead"><b>Price Movement</b><div><button class="active" id="lineBtn">Line</button><button id="candleBtn">Candles</button></div></div>
+<div class="period"><button class="active">1D</button><button>1W</button><button>1M</button><button>3M</button><button>6M</button><button>1Y</button></div>
+<svg id="chart" class="chart" viewBox="0 0 900 300" preserveAspectRatio="none"></svg>
+</div>
+
+<div class="cols">
+<div class="card"><b>Trend Snapshot</b>
+<div class="row"><span>Price trend</span><b class="green">Uptrend</b></div>
+<div class="row"><span>20-day MA</span><b class="green">Positive</b></div>
+<div class="row"><span>50-day MA</span><b class="green">Positive slope</b></div>
+<div class="row"><span>Momentum</span><b class="green">Strong</b></div>
+<div class="row"><span>Breakout</span><b>Monitoring</b></div>
+</div>
+<div class="card"><b>Key Levels</b>
+<div class="row"><span>Resistance</span><b>$1,063.68</b></div>
+<div class="row"><span>Current</span><b>$1,043.49</b></div>
+<div class="row"><span>Support</span><b>$1,000</b></div>
+</div>
+</div>
+
+<div class="cols">
+<div class="card bull"><b>🟢 Bullish Signals</b>
+<div class="signal"><span><b>Strong price momentum</b><br><span class="muted">Recent upside and trend strength</span></span><span class="badge">HIGH</span></div>
+<div class="signal"><span><b>AI / HBM demand</b><br><span class="muted">Structural memory-demand theme</span></span><span class="badge">HIGH</span></div>
+<div class="signal"><span><b>Volume participation</b></span><span class="badge">MED</span></div>
+</div>
+<div class="card bear"><b>🔴 Bearish Signals</b>
+<div class="signal"><span><b>Valuation sensitivity</b></span><span class="badge">MED</span></div>
+<div class="signal"><span><b>China / competition</b></span><span class="badge">MED</span></div>
+<div class="signal"><span><b>Macro / rates</b></span><span class="badge">MED</span></div>
+</div>
+</div>
+<div class="card muted">V1 is a working local front-end. Market/news values are sample data until live APIs are connected.</div>
+</main>
+
+<main id="trend" class="hidden"><div class="card"><h2>Trend Analysis</h2>
+<div class="row"><span>Trend</span><b class="green">Bullish / Uptrend</b></div>
+<div class="row"><span>Higher highs</span><b>Yes</b></div><div class="row"><span>Higher lows</span><b>Yes</b></div>
+<div class="row"><span>Momentum</span><b class="green">Strong</b></div><div class="row"><span>Resistance</span><b>$1,063.68</b></div><div class="row"><span>Support</span><b>$1,000</b></div>
+</div></main>
+
+<main id="signals" class="hidden"><div class="cols">
+<div class="card bull"><h2>🟢 Bullish</h2><div class="signal"><b>AI/HBM demand</b><span class="badge">HIGH</span></div><div class="signal"><b>Price momentum</b><span class="badge">HIGH</span></div><div class="signal"><b>Volume</b><span class="badge">MED</span></div></div>
+<div class="card bear"><h2>🔴 Bearish</h2><div class="signal"><b>Valuation</b><span class="badge">MED</span></div><div class="signal"><b>Competition</b><span class="badge">MED</span></div><div class="signal"><b>Rates / macro</b><span class="badge">MED</span></div></div>
+</div></main>
+
+<main id="news" class="hidden"><div class="card"><h2>News</h2><p class="muted">Live news collection will be connected in the next build. The UI is ready for it.</p></div></main>
+
+<main id="catalysts" class="hidden"><div class="card"><h2>Catalysts</h2>
+<div class="row"><span>MU earnings</span><b>Upcoming</b></div><div class="row"><span>Fed / macro</span><b>Monitor</b></div><div class="row"><span>NVIDIA / AI events</span><b>Monitor</b></div><div class="row"><span>HBM / memory news</span><b>Monitor</b></div>
+</div></main>
+</div>
+
+<script>
+const svg=document.getElementById('chart');
+const vals=[45,50,48,55,53,60,58,66,64,72,70,78,76,86,82,91,88,97,94,108,103,115,111,126,121,135,132,146,140,153,150,166,160,176,172,188];
+let mode='line';
+function draw(){
+ svg.innerHTML='';
+ if(mode==='line'){
+   const pts=vals.map((v,i)=>`${i*(900/(vals.length-1))},${280-v*1.42}`).join(' ');
+   svg.innerHTML=`<polyline points="${pts}" fill="none" stroke="#1769e0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+ }else{
+   const w=900/vals.length;
+   vals.forEach((v,i)=>{
+     const x=i*w+w/2,y=280-v*1.42,h=9+(i%4)*4,up=i===0||v>=vals[i-1],c=up?'#17834d':'#bd3838';
+     svg.innerHTML+=`<line x1="${x}" x2="${x}" y1="${y-h}" y2="${y+h}" stroke="${c}" stroke-width="2"/><rect x="${x-w*.28}" y="${y-6}" width="${w*.56}" height="12" fill="${c}" rx="1"/>`;
+   });
+ }
+}
+lineBtn.onclick=()=>{mode='line';lineBtn.classList.add('active');candleBtn.classList.remove('active');draw()};
+candleBtn.onclick=()=>{mode='candle';candleBtn.classList.add('active');lineBtn.classList.remove('active');draw()};
+document.querySelectorAll('.period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.period button').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ document.querySelectorAll('main').forEach(x=>x.classList.add('hidden'));document.getElementById(b.dataset.page).classList.remove('hidden');
+});
+draw();
+</script>
+</body>
+</html>
