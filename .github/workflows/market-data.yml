@@ -1,0 +1,72 @@
+name: Update Market Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-market-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch MU market data
+        env:
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+        run: |
+          mkdir -p data
+
+          echo "Fetching MU quote..."
+
+          curl -s \
+            "https://api.twelvedata.com/quote?symbol=MU&apikey=${TWELVE_DATA_API_KEY}" \
+            -o /tmp/mu_quote.json
+
+          echo "Fetching MU historical data..."
+
+          curl -s \
+            "https://api.twelvedata.com/time_series?symbol=MU&interval=1day&outputsize=100&apikey=${TWELVE_DATA_API_KEY}" \
+            -o /tmp/mu_history.json
+
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          with open("/tmp/mu_quote.json") as f:
+              quote = json.load(f)
+
+          with open("/tmp/mu_history.json") as f:
+              history = json.load(f)
+
+          output = {
+              "updatedAt": datetime.now(timezone.utc).isoformat(),
+              "symbol": "MU",
+              "quote": quote,
+              "history": history
+          }
+
+          with open("data/market.json", "w") as f:
+              json.dump(output, f, indent=2)
+
+          print("Market data saved successfully.")
+          PY
+
+      - name: Commit updated market data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/market.json
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update MU market data"
+            git push
+          fi
