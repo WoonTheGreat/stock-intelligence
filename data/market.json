@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-02T07:33:23.279422+00:00",
+  "updatedAt": "2026-10-02T14:10:03.842041+00:00",
   "symbol": "MU",
   "quote": {
     "symbol": "MU",
@@ -7,27 +7,27 @@
     "exchange": "NASDAQ",
     "mic_code": "XNGS",
     "currency": "USD",
-    "datetime": "2026-10-01",
-    "timestamp": 1790861400,
-    "last_quote_at": 1790884740,
-    "open": "1054.079956",
-    "high": "1098.90002",
-    "low": "1022.90002",
-    "close": "1097.39001",
-    "volume": "45562800",
-    "previous_close": "1065.10999",
-    "change": "32.28003",
-    "percent_change": "3.030676",
-    "average_volume": "27637450",
-    "is_market_open": false,
+    "datetime": "2026-10-02",
+    "timestamp": 1790947800,
+    "last_quote_at": 1790950200,
+    "open": "1107.97",
+    "high": "1107.97",
+    "low": "1082.605",
+    "close": "1092.54",
+    "volume": "169128",
+    "previous_close": "1097.39001",
+    "change": "-4.85001",
+    "percent_change": "-0.44195907",
+    "average_volume": "24074012",
+    "is_market_open": true,
     "fifty_two_week": {
-      "low": "165.5",
+      "low": "179.61000",
       "high": "1255",
-      "low_change": "931.89001",
-      "high_change": "-157.60999",
-      "low_change_percent": "563.075538",
-      "high_change_percent": "-12.55856",
-      "range": "165.500000 - 1255.000000"
+      "low_change": "912.93000",
+      "high_change": "-162.46000",
+      "low_change_percent": "508.28461",
+      "high_change_percent": "-12.94502",
+      "range": "179.610001 - 1255.000000"
     }
   },
   "history": {
@@ -41,6 +41,14 @@
       "type": "Common Stock"
     },
     "values": [
+      {
+        "datetime": "2026-10-02",
+        "open": "1107.97",
+        "high": "1107.97",
+        "low": "1082.605",
+        "close": "1092.54",
+        "volume": "169128"
+      },
       {
         "datetime": "2026-10-01",
         "open": "1054.079956",
@@ -832,14 +840,6 @@
         "low": "706.59998",
         "close": "766.58002",
         "volume": "73743000"
-      },
-      {
-        "datetime": "2026-05-11",
-        "open": "792.97998",
-        "high": "818.66998",
-        "low": "768",
-        "close": "795.33002",
-        "volume": "70972900"
       }
     ],
     "status": "ok"
