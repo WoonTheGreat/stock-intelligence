@@ -31,7 +31,7 @@ jobs:
           echo "Fetching MU historical data..."
 
           curl -s \
-            "https://api.twelvedata.com/time_series?symbol=MU&interval=1day&outputsize=100&apikey=${TWELVE_DATA_API_KEY}" \
+            "https://api.twelvedata.com/time_series?symbol=MU&interval=1day&outputsize=252&apikey=${TWELVE_DATA_API_KEY}" \
             -o /tmp/mu_history.json
 
           python - <<'PY'
