@@ -4,123 +4,1002 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Stock Intelligence V1</title>
+
 <style>
-:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f5f7fb}
-*{box-sizing:border-box}body{margin:0}.app{max-width:1200px;margin:auto;padding:16px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.brand{font-weight:850}.sub{font-size:13px;color:#667085;margin-top:3px}.pill{background:#e8f7ee;color:#18794e;padding:8px 12px;border-radius:99px;font-size:12px;font-weight:750}
-nav,.watch,.period{display:flex;gap:7px;overflow:auto;margin-bottom:12px}
-button{border:1px solid #e1e5eb;background:#fff;color:#667085;border-radius:9px;padding:9px 12px;cursor:pointer;white-space:nowrap}
-button.active{background:#172033;color:#fff;border-color:#172033}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{background:#fff;border:1px solid #e5e8ef;border-radius:15px;padding:15px;margin-top:10px;box-shadow:0 2px 8px #00000008}
-.label{font-size:11px;color:#667085}.big{font-size:25px;font-weight:850;margin-top:6px}.green{color:#17834d}.red{color:#bd3838}
-.charthead{display:flex;justify-content:space-between;align-items:center;gap:8px}.chart{width:100%;height:290px;display:block}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row,.signal{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #edf0f4}
-.badge{font-size:10px;font-weight:800;padding:4px 7px;border-radius:99px;background:#eef2f6;height:max-content}.bull .badge{background:#e8f7ee;color:#17834d}.bear .badge{background:#fdecec;color:#bd3838}
-.muted{color:#667085;font-size:12px}.hidden{display:none}
-@media(max-width:700px){.app{padding:11px}.grid{grid-template-columns:1fr 1fr}.cols{grid-template-columns:1fr}.chart{height:230px}.big{font-size:21px}.top{align-items:flex-start}}
+:root{
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#172033;
+  background:#f5f7fb
+}
+*{box-sizing:border-box}
+body{margin:0}
+.app{max-width:1200px;margin:auto;padding:16px}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px
+}
+.brand{font-weight:850}
+.sub{font-size:13px;color:#667085;margin-top:3px}
+
+.pill{
+  background:#e8f7ee;
+  color:#18794e;
+  padding:8px 12px;
+  border-radius:99px;
+  font-size:12px;
+  font-weight:750
+}
+
+nav,.watch,.period{
+  display:flex;
+  gap:7px;
+  overflow:auto;
+  margin-bottom:12px
+}
+
+button{
+  border:1px solid #e1e5eb;
+  background:#fff;
+  color:#667085;
+  border-radius:9px;
+  padding:9px 12px;
+  cursor:pointer;
+  white-space:nowrap
+}
+
+button.active{
+  background:#172033;
+  color:#fff;
+  border-color:#172033
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px
+}
+
+.card{
+  background:#fff;
+  border:1px solid #e5e8ef;
+  border-radius:15px;
+  padding:15px;
+  margin-top:10px;
+  box-shadow:0 2px 8px #00000008
+}
+
+.label{
+  font-size:11px;
+  color:#667085
+}
+
+.big{
+  font-size:25px;
+  font-weight:850;
+  margin-top:6px
+}
+
+.green{color:#17834d}
+.red{color:#bd3838}
+
+.charthead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px
+}
+
+.chart{
+  width:100%;
+  height:290px;
+  display:block
+}
+
+.cols{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+
+.row,.signal{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid #edf0f4
+}
+
+.badge{
+  font-size:10px;
+  font-weight:800;
+  padding:4px 7px;
+  border-radius:99px;
+  background:#eef2f6;
+  height:max-content
+}
+
+.bull .badge{
+  background:#e8f7ee;
+  color:#17834d
+}
+
+.bear .badge{
+  background:#fdecec;
+  color:#bd3838
+}
+
+.muted{
+  color:#667085;
+  font-size:12px
+}
+
+.hidden{display:none}
+
+.status{
+  font-size:11px;
+  color:#667085;
+  margin-top:8px
+}
+
+.loading{
+  opacity:.6
+}
+
+@media(max-width:700px){
+  .app{padding:11px}
+  .grid{grid-template-columns:1fr 1fr}
+  .cols{grid-template-columns:1fr}
+  .chart{height:230px}
+  .big{font-size:21px}
+  .top{align-items:flex-start}
+}
 </style>
 </head>
-<body>
-<div class="app">
-<header class="top"><div><div class="brand">STOCK INTELLIGENCE · LOCAL V1</div><div class="sub">Private personal stock dashboard</div></div><div class="pill">● Local / Private</div></header>
 
-<div class="watch"><button class="active">MU</button><button>NVDA</button><button>TSLA</button><button>AMD</button><button>＋ Add</button></div>
+<body>
+
+<div class="app">
+
+<header class="top">
+  <div>
+    <div class="brand">STOCK INTELLIGENCE · LIVE V1</div>
+    <div class="sub">Private personal stock dashboard</div>
+  </div>
+  <div class="pill">● Live Data</div>
+</header>
+
+<div class="watch">
+  <button class="active">MU</button>
+  <button>NVDA</button>
+  <button>TSLA</button>
+  <button>AMD</button>
+  <button>＋ Add</button>
+</div>
 
 <nav>
-<button class="active" data-page="dashboard">Dashboard</button>
-<button data-page="trend">Trend</button>
-<button data-page="signals">AI Signals</button>
-<button data-page="news">News</button>
-<button data-page="catalysts">Catalysts</button>
+  <button class="active" data-page="dashboard">Dashboard</button>
+  <button data-page="trend">Trend</button>
+  <button data-page="signals">AI Signals</button>
+  <button data-page="news">News</button>
+  <button data-page="catalysts">Catalysts</button>
 </nav>
 
 <main id="dashboard">
+
 <div class="grid">
-<div class="card"><div class="label">PRICE</div><div class="big">$1,043.49</div></div>
-<div class="card"><div class="label">1 WEEK</div><div class="big green">+12.9%</div></div>
-<div class="card"><div class="label">VOLUME</div><div class="big">27.1M</div></div>
-<div class="card"><div class="label">TREND</div><div class="big green">Bullish</div></div>
+
+  <div class="card">
+    <div class="label">PRICE</div>
+    <div class="big" id="price">$—</div>
+    <div class="status" id="quoteStatus">Loading...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">DAILY CHANGE</div>
+    <div class="big" id="dailyChange">—</div>
+  </div>
+
+  <div class="card">
+    <div class="label">VOLUME</div>
+    <div class="big" id="volume">—</div>
+  </div>
+
+  <div class="card">
+    <div class="label">TREND</div>
+    <div class="big green" id="trendValue">—</div>
+  </div>
+
 </div>
 
 <div class="card">
-<div class="charthead"><b>Price Movement</b><div><button class="active" id="lineBtn">Line</button><button id="candleBtn">Candles</button></div></div>
-<div class="period"><button class="active">1D</button><button>1W</button><button>1M</button><button>3M</button><button>6M</button><button>1Y</button></div>
-<svg id="chart" class="chart" viewBox="0 0 900 300" preserveAspectRatio="none"></svg>
+
+  <div class="charthead">
+    <b>Price Movement</b>
+
+    <div>
+      <button class="active" id="lineBtn">Line</button>
+      <button id="candleBtn">Candles</button>
+    </div>
+  </div>
+
+  <div class="period">
+    <button class="active" data-period="1D">1D</button>
+    <button data-period="1W">1W</button>
+    <button data-period="1M">1M</button>
+    <button data-period="3M">3M</button>
+    <button data-period="6M">6M</button>
+    <button data-period="1Y">1Y</button>
+  </div>
+
+  <svg
+    id="chart"
+    class="chart"
+    viewBox="0 0 900 300"
+    preserveAspectRatio="none">
+  </svg>
+
+  <div class="status" id="chartStatus">Loading market history...</div>
+
 </div>
 
 <div class="cols">
-<div class="card"><b>Trend Snapshot</b>
-<div class="row"><span>Price trend</span><b class="green">Uptrend</b></div>
-<div class="row"><span>20-day MA</span><b class="green">Positive</b></div>
-<div class="row"><span>50-day MA</span><b class="green">Positive slope</b></div>
-<div class="row"><span>Momentum</span><b class="green">Strong</b></div>
-<div class="row"><span>Breakout</span><b>Monitoring</b></div>
+
+<div class="card">
+
+  <b>Trend Snapshot</b>
+
+  <div class="row">
+    <span>Price trend</span>
+    <b class="green" id="priceTrend">—</b>
+  </div>
+
+  <div class="row">
+    <span>20-day MA</span>
+    <b class="green" id="ma20">—</b>
+  </div>
+
+  <div class="row">
+    <span>50-day MA</span>
+    <b class="green" id="ma50">—</b>
+  </div>
+
+  <div class="row">
+    <span>Momentum</span>
+    <b class="green" id="momentum">—</b>
+  </div>
+
+  <div class="row">
+    <span>Breakout</span>
+    <b id="breakout">Monitoring</b>
+  </div>
+
 </div>
-<div class="card"><b>Key Levels</b>
-<div class="row"><span>Resistance</span><b>$1,063.68</b></div>
-<div class="row"><span>Current</span><b>$1,043.49</b></div>
-<div class="row"><span>Support</span><b>$1,000</b></div>
+
+<div class="card">
+
+  <b>Key Levels</b>
+
+  <div class="row">
+    <span>52-week high</span>
+    <b id="resistance">—</b>
+  </div>
+
+  <div class="row">
+    <span>Current</span>
+    <b id="currentLevel">—</b>
+  </div>
+
+  <div class="row">
+    <span>52-week low</span>
+    <b id="support">—</b>
+  </div>
+
 </div>
+
 </div>
 
 <div class="cols">
-<div class="card bull"><b>🟢 Bullish Signals</b>
-<div class="signal"><span><b>Strong price momentum</b><br><span class="muted">Recent upside and trend strength</span></span><span class="badge">HIGH</span></div>
-<div class="signal"><span><b>AI / HBM demand</b><br><span class="muted">Structural memory-demand theme</span></span><span class="badge">HIGH</span></div>
-<div class="signal"><span><b>Volume participation</b></span><span class="badge">MED</span></div>
+
+<div class="card bull">
+
+  <b>🟢 Bullish Signals</b>
+
+  <div class="signal">
+    <span>
+      <b>Price momentum</b><br>
+      <span class="muted">Based on recent price trend</span>
+    </span>
+    <span class="badge" id="bullMomentum">—</span>
+  </div>
+
+  <div class="signal">
+    <span>
+      <b>AI / HBM demand</b><br>
+      <span class="muted">Structural memory-demand theme</span>
+    </span>
+    <span class="badge">HIGH</span>
+  </div>
+
+  <div class="signal">
+    <span>
+      <b>Volume participation</b>
+    </span>
+    <span class="badge" id="volumeSignal">—</span>
+  </div>
+
 </div>
-<div class="card bear"><b>🔴 Bearish Signals</b>
-<div class="signal"><span><b>Valuation sensitivity</b></span><span class="badge">MED</span></div>
-<div class="signal"><span><b>China / competition</b></span><span class="badge">MED</span></div>
-<div class="signal"><span><b>Macro / rates</b></span><span class="badge">MED</span></div>
+
+<div class="card bear">
+
+  <b>🔴 Bearish Signals</b>
+
+  <div class="signal">
+    <span><b>Valuation sensitivity</b></span>
+    <span class="badge">MED</span>
+  </div>
+
+  <div class="signal">
+    <span><b>China / competition</b></span>
+    <span class="badge">MED</span>
+  </div>
+
+  <div class="signal">
+    <span><b>Macro / rates</b></span>
+    <span class="badge">MED</span>
+  </div>
+
 </div>
+
 </div>
-<div class="card muted">V1 is a working local front-end. Market/news values are sample data until live APIs are connected.</div>
+
+<div class="card muted">
+  <b>Data source:</b> Twelve Data ·
+  <span id="lastUpdated">Waiting for update...</span>
+</div>
+
 </main>
 
-<main id="trend" class="hidden"><div class="card"><h2>Trend Analysis</h2>
-<div class="row"><span>Trend</span><b class="green">Bullish / Uptrend</b></div>
-<div class="row"><span>Higher highs</span><b>Yes</b></div><div class="row"><span>Higher lows</span><b>Yes</b></div>
-<div class="row"><span>Momentum</span><b class="green">Strong</b></div><div class="row"><span>Resistance</span><b>$1,063.68</b></div><div class="row"><span>Support</span><b>$1,000</b></div>
-</div></main>
 
-<main id="signals" class="hidden"><div class="cols">
-<div class="card bull"><h2>🟢 Bullish</h2><div class="signal"><b>AI/HBM demand</b><span class="badge">HIGH</span></div><div class="signal"><b>Price momentum</b><span class="badge">HIGH</span></div><div class="signal"><b>Volume</b><span class="badge">MED</span></div></div>
-<div class="card bear"><h2>🔴 Bearish</h2><div class="signal"><b>Valuation</b><span class="badge">MED</span></div><div class="signal"><b>Competition</b><span class="badge">MED</span></div><div class="signal"><b>Rates / macro</b><span class="badge">MED</span></div></div>
-</div></main>
+<main id="trend" class="hidden">
 
-<main id="news" class="hidden"><div class="card"><h2>News</h2><p class="muted">Live news collection will be connected in the next build. The UI is ready for it.</p></div></main>
+<div class="card">
 
-<main id="catalysts" class="hidden"><div class="card"><h2>Catalysts</h2>
-<div class="row"><span>MU earnings</span><b>Upcoming</b></div><div class="row"><span>Fed / macro</span><b>Monitor</b></div><div class="row"><span>NVIDIA / AI events</span><b>Monitor</b></div><div class="row"><span>HBM / memory news</span><b>Monitor</b></div>
-</div></main>
+  <h2>Trend Analysis</h2>
+
+  <div class="row">
+    <span>Trend</span>
+    <b class="green" id="trendPageValue">—</b>
+  </div>
+
+  <div class="row">
+    <span>Higher highs</span>
+    <b id="higherHighs">—</b>
+  </div>
+
+  <div class="row">
+    <span>Higher lows</span>
+    <b id="higherLows">—</b>
+  </div>
+
+  <div class="row">
+    <span>Momentum</span>
+    <b class="green" id="trendMomentum">—</b>
+  </div>
+
+  <div class="row">
+    <span>52-week high</span>
+    <b id="trendResistance">—</b>
+  </div>
+
+  <div class="row">
+    <span>52-week low</span>
+    <b id="trendSupport">—</b>
+  </div>
+
 </div>
 
+</main>
+
+
+<main id="signals" class="hidden">
+
+<div class="cols">
+
+<div class="card bull">
+
+  <h2>🟢 Bullish</h2>
+
+  <div class="signal">
+    <b>AI/HBM demand</b>
+    <span class="badge">HIGH</span>
+  </div>
+
+  <div class="signal">
+    <b>Price momentum</b>
+    <span class="badge" id="signalMomentum">—</span>
+  </div>
+
+  <div class="signal">
+    <b>Volume</b>
+    <span class="badge" id="signalVolume">—</span>
+  </div>
+
+</div>
+
+<div class="card bear">
+
+  <h2>🔴 Bearish</h2>
+
+  <div class="signal">
+    <b>Valuation</b>
+    <span class="badge">MED</span>
+  </div>
+
+  <div class="signal">
+    <b>Competition</b>
+    <span class="badge">MED</span>
+  </div>
+
+  <div class="signal">
+    <b>Rates / macro</b>
+    <span class="badge">MED</span>
+  </div>
+
+</div>
+
+</div>
+
+</main>
+
+
+<main id="news" class="hidden">
+
+<div class="card">
+
+  <h2>News</h2>
+
+  <p class="muted">
+    Live news collection will be connected in the next build.
+  </p>
+
+</div>
+
+</main>
+
+
+<main id="catalysts" class="hidden">
+
+<div class="card">
+
+  <h2>Catalysts</h2>
+
+  <div class="row">
+    <span>MU earnings</span>
+    <b>Upcoming</b>
+  </div>
+
+  <div class="row">
+    <span>Fed / macro</span>
+    <b>Monitor</b>
+  </div>
+
+  <div class="row">
+    <span>NVIDIA / AI events</span>
+    <b>Monitor</b>
+  </div>
+
+  <div class="row">
+    <span>HBM / memory news</span>
+    <b>Monitor</b>
+  </div>
+
+</div>
+
+</main>
+
+</div>
+
+
 <script>
-const svg=document.getElementById('chart');
-const vals=[45,50,48,55,53,60,58,66,64,72,70,78,76,86,82,91,88,97,94,108,103,115,111,126,121,135,132,146,140,153,150,166,160,176,172,188];
-let mode='line';
-function draw(){
- svg.innerHTML='';
- if(mode==='line'){
-   const pts=vals.map((v,i)=>`${i*(900/(vals.length-1))},${280-v*1.42}`).join(' ');
-   svg.innerHTML=`<polyline points="${pts}" fill="none" stroke="#1769e0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
- }else{
-   const w=900/vals.length;
-   vals.forEach((v,i)=>{
-     const x=i*w+w/2,y=280-v*1.42,h=9+(i%4)*4,up=i===0||v>=vals[i-1],c=up?'#17834d':'#bd3838';
-     svg.innerHTML+=`<line x1="${x}" x2="${x}" y1="${y-h}" y2="${y+h}" stroke="${c}" stroke-width="2"/><rect x="${x-w*.28}" y="${y-6}" width="${w*.56}" height="12" fill="${c}" rx="1"/>`;
-   });
- }
+
+let marketData = null;
+let chartMode = "line";
+let selectedPeriod = "1M";
+
+
+const $ = id => document.getElementById(id);
+
+
+function money(value){
+  const n = Number(value);
+  if(!Number.isFinite(n)) return "—";
+  return "$" + n.toLocaleString("en-US", {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
 }
-lineBtn.onclick=()=>{mode='line';lineBtn.classList.add('active');candleBtn.classList.remove('active');draw()};
-candleBtn.onclick=()=>{mode='candle';candleBtn.classList.add('active');lineBtn.classList.remove('active');draw()};
-document.querySelectorAll('.period button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.period button').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
- document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
- document.querySelectorAll('main').forEach(x=>x.classList.add('hidden'));document.getElementById(b.dataset.page).classList.remove('hidden');
+
+
+function compactNumber(value){
+
+  const n = Number(value);
+
+  if(!Number.isFinite(n)) return "—";
+
+  if(n >= 1000000000)
+    return (n/1000000000).toFixed(2) + "B";
+
+  if(n >= 1000000)
+    return (n/1000000).toFixed(1) + "M";
+
+  if(n >= 1000)
+    return (n/1000).toFixed(1) + "K";
+
+  return n.toLocaleString();
+}
+
+
+function average(values){
+
+  if(!values.length) return null;
+
+  return values.reduce((a,b)=>a+b,0) / values.length;
+}
+
+
+function getHistory(){
+
+  if(
+    !marketData ||
+    !marketData.history ||
+    !Array.isArray(marketData.history.values)
+  ){
+    return [];
+  }
+
+  return marketData.history.values
+    .map(x => ({
+      date:x.datetime,
+      open:Number(x.open),
+      high:Number(x.high),
+      low:Number(x.low),
+      close:Number(x.close),
+      volume:Number(x.volume)
+    }))
+    .filter(x => Number.isFinite(x.close))
+    .reverse();
+}
+
+
+function getPeriodData(){
+
+  const history = getHistory();
+
+  const counts = {
+    "1D":1,
+    "1W":5,
+    "1M":22,
+    "3M":66,
+    "6M":126,
+    "1Y":252
+  };
+
+  const count = counts[selectedPeriod] || 22;
+
+  return history.slice(-count);
+}
+
+
+function calculateTrend(){
+
+  const history = getHistory();
+
+  if(history.length < 5){
+    return {
+      trend:"Insufficient data",
+      momentum:"—",
+      ma20:"—",
+      ma50:"—"
+    };
+  }
+
+  const closes = history.map(x=>x.close);
+  const latest = closes[closes.length-1];
+
+  const ma20 = average(closes.slice(-20));
+  const ma50 = average(closes.slice(-50));
+
+  let trend = "Sideways";
+
+  if(ma20 && ma50){
+    if(latest > ma20 && ma20 > ma50)
+      trend = "Bullish";
+
+    else if(latest < ma20 && ma20 < ma50)
+      trend = "Bearish";
+  }
+
+  let momentum = "Neutral";
+
+  if(history.length >= 20){
+
+    const old = closes[closes.length-20];
+    const change = ((latest-old)/old)*100;
+
+    if(change > 8)
+      momentum = "Strong";
+
+    else if(change > 3)
+      momentum = "Positive";
+
+    else if(change < -8)
+      momentum = "Weak";
+
+    else if(change < -3)
+      momentum = "Negative";
+  }
+
+  return {
+    trend,
+    momentum,
+    ma20,
+    ma50
+  };
+}
+
+
+function updateDashboard(){
+
+  if(!marketData || !marketData.quote) return;
+
+  const q = marketData.quote;
+
+  const price = Number(q.close);
+  const change = Number(q.change);
+  const percent = Number(q.percent_change);
+  const volume = Number(q.volume);
+
+  $("price").textContent = money(price);
+
+  const changeEl = $("dailyChange");
+
+  if(Number.isFinite(percent)){
+
+    const sign = percent >= 0 ? "+" : "";
+
+    changeEl.textContent =
+      sign + percent.toFixed(2) + "%";
+
+    changeEl.className =
+      "big " + (percent >= 0 ? "green" : "red");
+  }
+
+  $("volume").textContent = compactNumber(volume);
+
+  const trend = calculateTrend();
+
+  $("trendValue").textContent = trend.trend;
+
+  $("priceTrend").textContent = trend.trend;
+
+  $("ma20").textContent =
+    trend.ma20 ? money(trend.ma20) : "—";
+
+  $("ma50").textContent =
+    trend.ma50 ? money(trend.ma50) : "—";
+
+  $("momentum").textContent = trend.momentum;
+
+  $("trendPageValue").textContent = trend.trend;
+
+  $("trendMomentum").textContent = trend.momentum;
+
+  $("currentLevel").textContent = money(price);
+
+  $("trendResistance").textContent =
+    q.fifty_two_week?.high
+      ? money(q.fifty_two_week.high)
+      : "—";
+
+  $("trendSupport").textContent =
+    q.fifty_two_week?.low
+      ? money(q.fifty_two_week.low)
+      : "—";
+
+  $("resistance").textContent =
+    q.fifty_two_week?.high
+      ? money(q.fifty_two_week.high)
+      : "—";
+
+  $("support").textContent =
+    q.fifty_two_week?.low
+      ? money(q.fifty_two_week.low)
+      : "—";
+
+
+  const bullish =
+    trend.trend === "Bullish" ||
+    trend.momentum === "Strong";
+
+  $("bullMomentum").textContent =
+    bullish ? "HIGH" : "MED";
+
+  $("signalMomentum").textContent =
+    bullish ? "HIGH" : "MED";
+
+
+  const avgVolume =
+    q.average_volume
+      ? Number(q.average_volume)
+      : null;
+
+  if(avgVolume && volume > avgVolume){
+
+    $("volumeSignal").textContent = "HIGH";
+    $("signalVolume").textContent = "HIGH";
+
+  }else{
+
+    $("volumeSignal").textContent = "MED";
+    $("signalVolume").textContent = "MED";
+  }
+
+
+  if(q.datetime){
+
+    $("quoteStatus").textContent =
+      "Latest quote: " + q.datetime;
+  }
+
+
+  if(marketData.updatedAt){
+
+    const date = new Date(marketData.updatedAt);
+
+    $("lastUpdated").textContent =
+      "Last data update: " +
+      date.toLocaleString("en-MY");
+  }
+}
+
+
+function drawChart(){
+
+  const svg = $("chart");
+
+  svg.innerHTML = "";
+
+  const data = getPeriodData();
+
+  if(!data.length){
+
+    $("chartStatus").textContent =
+      "No historical data available.";
+
+    return;
+  }
+
+  $("chartStatus").textContent =
+    `${data.length} trading sessions · ${selectedPeriod}`;
+
+
+  const W = 900;
+  const H = 300;
+
+  const pad = 20;
+
+  const highs = data.map(x=>x.high);
+  const lows = data.map(x=>x.low);
+
+  const max = Math.max(...highs);
+  const min = Math.min(...lows);
+
+  const range = Math.max(max-min,1);
+
+
+  function y(price){
+
+    return H-pad -
+      ((price-min)/range)*(H-pad*2);
+  }
+
+
+  if(chartMode === "line"){
+
+    const points = data.map((x,i)=>{
+
+      const px =
+        pad +
+        (i/(Math.max(data.length-1,1))) *
+        (W-pad*2);
+
+      return `${px},${y(x.close)}`;
+
+    }).join(" ");
+
+
+    svg.innerHTML = `
+      <polyline
+        points="${points}"
+        fill="none"
+        stroke="#1769e0"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    `;
+
+  }else{
+
+    const width =
+      Math.max(2,(W-pad*2)/data.length*0.55);
+
+    data.forEach((x,i)=>{
+
+      const center =
+        pad +
+        (i/(Math.max(data.length-1,1))) *
+        (W-pad*2);
+
+      const openY = y(x.open);
+      const closeY = y(x.close);
+      const highY = y(x.high);
+      const lowY = y(x.low);
+
+      const up = x.close >= x.open;
+
+      const color =
+        up ? "#17834d" : "#bd3838";
+
+      const top =
+        Math.min(openY,closeY);
+
+      const bodyHeight =
+        Math.max(Math.abs(closeY-openY),2);
+
+      svg.innerHTML += `
+
+        <line
+          x1="${center}"
+          x2="${center}"
+          y1="${highY}"
+          y2="${lowY}"
+          stroke="${color}"
+          stroke-width="1.5"
+        />
+
+        <rect
+          x="${center-width/2}"
+          y="${top}"
+          width="${width}"
+          height="${bodyHeight}"
+          fill="${color}"
+          rx="1"
+        />
+      `;
+
+    });
+
+  }
+
+}
+
+
+async function loadMarketData(){
+
+  try{
+
+    const response =
+      await fetch("./data/market.json?cache=" + Date.now());
+
+    if(!response.ok)
+      throw new Error("Could not load market data.");
+
+    marketData =
+      await response.json();
+
+    updateDashboard();
+
+    drawChart();
+
+  }catch(error){
+
+    console.error(error);
+
+    $("quoteStatus").textContent =
+      "Unable to load market data";
+
+    $("chartStatus").textContent =
+      "Market data unavailable";
+  }
+
+}
+
+
+/* Line / candle buttons */
+
+$("lineBtn").onclick = ()=>{
+
+  chartMode = "line";
+
+  $("lineBtn").classList.add("active");
+  $("candleBtn").classList.remove("active");
+
+  drawChart();
+
+};
+
+
+$("candleBtn").onclick = ()=>{
+
+  chartMode = "candle";
+
+  $("candleBtn").classList.add("active");
+  $("lineBtn").classList.remove("active");
+
+  drawChart();
+
+};
+
+
+/* Period buttons */
+
+document
+.querySelectorAll(".period button")
+.forEach(button => {
+
+  button.onclick = ()=>{
+
+    document
+    .querySelectorAll(".period button")
+    .forEach(x=>x.classList.remove("active"));
+
+    button.classList.add("active");
+
+    selectedPeriod =
+      button.dataset.period;
+
+    drawChart();
+
+  };
+
 });
-draw();
+
+
+/* Navigation */
+
+document
+.querySelectorAll("nav button")
+.forEach(button => {
+
+  button.onclick = ()=>{
+
+    document
+    .querySelectorAll("nav button")
+    .forEach(x=>x.classList.remove("active"));
+
+    button.classList.add("active");
+
+    document
+    .querySelectorAll("main")
+    .forEach(x=>x.classList.add("hidden"));
+
+    document
+    .getElementById(button.dataset.page)
+    .classList.remove("hidden");
+
+  };
+
+});
+
+
+loadMarketData();
+
 </script>
+
 </body>
 </html>
