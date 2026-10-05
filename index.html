@@ -766,7 +766,6 @@ function updateDashboard(){
   }
 }
 
-
 function drawChart(){
 
   const svg = $("chart");
@@ -774,6 +773,7 @@ function drawChart(){
   svg.innerHTML = "";
 
   const data = getPeriodData();
+  const fullHistory = getHistory();
 
   if(!data.length){
 
@@ -784,109 +784,406 @@ function drawChart(){
   }
 
   $("chartStatus").textContent =
-    `${data.length} trading sessions · ${selectedPeriod}`;
-
+    `${data.length} trading sessions · ${selectedPeriod} · 20D / 50D MA · Volume`;
 
   const W = 900;
-  const H = 300;
+  const H = 320;
 
-  const pad = 20;
+  const left = 44;
+  const right = 14;
+  const top = 18;
+  const priceBottom = 224;
 
-  const highs = data.map(x=>x.high);
-  const lows = data.map(x=>x.low);
+  const volumeTop = 244;
+  const volumeBottom = 306;
 
-  const max = Math.max(...highs);
-  const min = Math.min(...lows);
+  const chartWidth = W - left - right;
 
-  const range = Math.max(max-min,1);
+  const highs = data.map(x => x.high);
+  const lows = data.map(x => x.low);
 
+  let max = Math.max(...highs);
+  let min = Math.min(...lows);
+
+  const pricePadding = Math.max((max - min) * 0.06, 1);
+
+  max += pricePadding;
+  min -= pricePadding;
+
+  const range = Math.max(max - min, 1);
 
   function y(price){
 
-    return H-pad -
-      ((price-min)/range)*(H-pad*2);
+    return priceBottom -
+      ((price - min) / range) *
+      (priceBottom - top);
+
   }
 
+  function xAt(i){
+
+    return left +
+      (i / Math.max(data.length - 1, 1)) *
+      chartWidth;
+
+  }
+
+  /*
+    Calculate moving averages using
+    the FULL history so the first visible
+    point still has the correct MA.
+  */
+
+  function maAt(historyIndex, length){
+
+    if(historyIndex < 0)
+      return null;
+
+    const values =
+      fullHistory
+        .slice(
+          Math.max(0, historyIndex - length + 1),
+          historyIndex + 1
+        )
+        .map(x => x.close)
+        .filter(Number.isFinite);
+
+    return values.length >= length
+      ? average(values)
+      : null;
+
+  }
+
+  const firstIndex =
+    Math.max(0, fullHistory.length - data.length);
+
+  const ma20 = data.map((_, i) =>
+    maAt(firstIndex + i, 20)
+  );
+
+  const ma50 = data.map((_, i) =>
+    maAt(firstIndex + i, 50)
+  );
+
+  /*
+    Volume
+  */
+
+  const volumes =
+    data.map(x => Number(x.volume) || 0);
+
+  const maxVolume =
+    Math.max(...volumes, 1);
+
+  /*
+    SVG helper
+  */
+
+  const ns =
+    "http://www.w3.org/2000/svg";
+
+  function add(tag, attrs, textContent = ""){
+
+    const el =
+      document.createElementNS(ns, tag);
+
+    Object.entries(attrs).forEach(
+      ([key, value]) => {
+
+        el.setAttribute(key, value);
+
+      }
+    );
+
+    if(textContent)
+      el.textContent = textContent;
+
+    svg.appendChild(el);
+
+    return el;
+
+  }
+
+  /*
+    Background
+  */
+
+  add("rect", {
+    x: 0,
+    y: 0,
+    width: W,
+    height: H,
+    fill: "#ffffff"
+  });
+
+  /*
+    Price grid
+  */
+
+  for(let i = 0; i < 4; i++){
+
+    const price =
+      max - (range / 3) * i;
+
+    const yy = y(price);
+
+    add("line", {
+      x1: left,
+      x2: W - right,
+      y1: yy,
+      y2: yy,
+      stroke: "#edf0f4",
+      "stroke-width": "1"
+    });
+
+    add("text", {
+      x: 4,
+      y: yy + 4,
+      fill: "#98a2b3",
+      "font-size": "10"
+    }, money(price).replace("$", ""));
+
+  }
+
+  /*
+    Volume bars
+  */
+
+  const volumeWidth =
+    Math.max(
+      2,
+      (chartWidth / Math.max(data.length, 1)) * 0.62
+    );
+
+  data.forEach((item, i) => {
+
+    const x = xAt(i);
+
+    const height =
+      (item.volume / maxVolume) *
+      (volumeBottom - volumeTop);
+
+    const up =
+      item.close >= item.open;
+
+    add("rect", {
+      x: x - volumeWidth / 2,
+      y: volumeBottom - height,
+      width: volumeWidth,
+      height: Math.max(height, 1),
+      fill: up ? "#17834d" : "#bd3838",
+      opacity: "0.28"
+    });
+
+  });
+
+  /*
+    PRICE CHART
+  */
 
   if(chartMode === "line"){
 
-    const points = data.map((x,i)=>{
+    const points =
+      data.map((item, i) =>
+        `${xAt(i)},${y(item.close)}`
+      ).join(" ");
 
-      const px =
-        pad +
-        (i/(Math.max(data.length-1,1))) *
-        (W-pad*2);
-
-      return `${px},${y(x.close)}`;
-
-    }).join(" ");
-
-
-    svg.innerHTML = `
-      <polyline
-        points="${points}"
-        fill="none"
-        stroke="#1769e0"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    `;
+    add("polyline", {
+      points,
+      fill: "none",
+      stroke: "#1769e0",
+      "stroke-width": "3",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round"
+    });
 
   }else{
 
-    const width =
-      Math.max(2,(W-pad*2)/data.length*0.55);
+    /*
+      CANDLESTICKS
+    */
 
-    data.forEach((x,i)=>{
+    const candleWidth =
+      Math.max(
+        2,
+        (chartWidth / Math.max(data.length, 1)) * 0.55
+      );
+
+    data.forEach((item, i) => {
 
       const center =
-        pad +
-        (i/(Math.max(data.length-1,1))) *
-        (W-pad*2);
+        xAt(i);
 
-      const openY = y(x.open);
-      const closeY = y(x.close);
-      const highY = y(x.high);
-      const lowY = y(x.low);
+      const openY =
+        y(item.open);
 
-      const up = x.close >= x.open;
+      const closeY =
+        y(item.close);
+
+      const highY =
+        y(item.high);
+
+      const lowY =
+        y(item.low);
+
+      const up =
+        item.close >= item.open;
 
       const color =
         up ? "#17834d" : "#bd3838";
 
-      const top =
-        Math.min(openY,closeY);
+      /*
+        Wick
+      */
 
-      const bodyHeight =
-        Math.max(Math.abs(closeY-openY),2);
+      add("line", {
+        x1: center,
+        x2: center,
+        y1: highY,
+        y2: lowY,
+        stroke: color,
+        "stroke-width": "1.3"
+      });
 
-      svg.innerHTML += `
+      /*
+        Candle body
+      */
 
-        <line
-          x1="${center}"
-          x2="${center}"
-          y1="${highY}"
-          y2="${lowY}"
-          stroke="${color}"
-          stroke-width="1.5"
-        />
-
-        <rect
-          x="${center-width/2}"
-          y="${top}"
-          width="${width}"
-          height="${bodyHeight}"
-          fill="${color}"
-          rx="1"
-        />
-      `;
+      add("rect", {
+        x: center - candleWidth / 2,
+        y: Math.min(openY, closeY),
+        width: candleWidth,
+        height: Math.max(
+          Math.abs(closeY - openY),
+          2
+        ),
+        fill: color,
+        rx: "1"
+      });
 
     });
 
   }
 
+  /*
+    MOVING AVERAGES
+  */
+
+  function drawMA(values, stroke){
+
+    const points = [];
+
+    values.forEach((value, i) => {
+
+      if(
+        value !== null &&
+        Number.isFinite(value)
+      ){
+
+        points.push(
+          `${xAt(i)},${y(value)}`
+        );
+
+      }
+
+    });
+
+    if(points.length > 1){
+
+      add("polyline", {
+        points: points.join(" "),
+        fill: "none",
+        stroke,
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        opacity: "0.9"
+      });
+
+    }
+
+  }
+
+  drawMA(ma20, "#f59e0b");
+  drawMA(ma50, "#7c3aed");
+
+  /*
+    LEGEND
+  */
+
+  add("text", {
+    x: left,
+    y: 12,
+    fill: "#667085",
+    "font-size": "10",
+    "font-weight": "700"
+  }, "MA20");
+
+  add("text", {
+    x: left + 42,
+    y: 12,
+    fill: "#667085",
+    "font-size": "10",
+    "font-weight": "700"
+  }, "MA50");
+
+  add("text", {
+    x: left + 84,
+    y: 12,
+    fill: "#667085",
+    "font-size": "10",
+    "font-weight": "700"
+  }, "Volume");
+
+  /*
+    CURRENT PRICE GUIDE
+  */
+
+  const latest =
+    data[data.length - 1];
+
+  if(latest){
+
+    const latestY =
+      y(latest.close);
+
+    add("line", {
+      x1: left,
+      x2: W - right,
+      y1: latestY,
+      y2: latestY,
+      stroke: "#98a2b3",
+      "stroke-width": "1",
+      "stroke-dasharray": "4 4",
+      opacity: "0.65"
+    });
+
+    add("text", {
+      x: W - right - 2,
+      y: latestY - 5,
+      fill: "#667085",
+      "font-size": "10",
+      "text-anchor": "end",
+      "font-weight": "700"
+    }, money(latest.close));
+
+  }
+
+  /*
+    Volume divider
+  */
+
+  add("line", {
+    x1: left,
+    x2: W - right,
+    y1: volumeTop - 5,
+    y2: volumeTop - 5,
+    stroke: "#e5e8ef",
+    "stroke-width": "1"
+  });
+
 }
+
 
 
 async function loadMarketData(){
