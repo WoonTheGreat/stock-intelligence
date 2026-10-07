@@ -95,8 +95,39 @@ button.active{
 
 .chart{
   width:100%;
-  height:290px;
+  height:320px;
   display:block
+}
+
+.chartWrap{
+  position:relative;
+}
+
+.chartTooltip{
+  position:absolute;
+  display:none;
+  pointer-events:none;
+  z-index:10;
+  background:#172033;
+  color:#fff;
+  border-radius:10px;
+  padding:9px 11px;
+  font-size:11px;
+  line-height:1.55;
+  box-shadow:0 6px 20px #00000022;
+  min-width:145px;
+}
+
+.chartTooltip b{
+  font-size:12px;
+}
+
+.chartTooltip .up{
+  color:#72d6a0;
+}
+
+.chartTooltip .down{
+  color:#ff9292;
 }
 
 .cols{
@@ -235,12 +266,18 @@ button.active{
     <button data-period="1Y">1Y</button>
   </div>
 
+ <div class="chartWrap">
+
   <svg
     id="chart"
     class="chart"
-    viewBox="0 0 900 300"
+    viewBox="0 0 900 320"
     preserveAspectRatio="none">
   </svg>
+
+  <div id="chartTooltip" class="chartTooltip"></div>
+
+</div>
 
   <div class="status" id="chartStatus">Loading market history...</div>
 
