@@ -316,9 +316,25 @@ button.active{
 
 </div>
 
+
 <div class="card">
 
   <b>Key Levels</b>
+
+  <div class="row">
+    <span>Recent resistance</span>
+    <b id="recentResistance">—</b>
+  </div>
+
+  <div class="row">
+    <span>Current price</span>
+    <b id="currentLevel">—</b>
+  </div>
+
+  <div class="row">
+    <span>Recent support</span>
+    <b id="recentSupport">—</b>
+  </div>
 
   <div class="row">
     <span>52-week high</span>
@@ -326,14 +342,11 @@ button.active{
   </div>
 
   <div class="row">
-    <span>Current</span>
-    <b id="currentLevel">—</b>
-  </div>
-
-  <div class="row">
     <span>52-week low</span>
     <b id="support">—</b>
   </div>
+
+</div>
 
 </div>
 
@@ -982,6 +995,118 @@ function drawChart(){
 
   }
 
+  /*
+    AUTOMATIC SUPPORT & RESISTANCE
+    Uses recent swing highs and lows.
+  */
+
+  const latestClose = data[data.length - 1].close;
+  const swingHighs = [];
+  const swingLows = [];
+
+  for (let i = 2; i < data.length - 2; i++) {
+
+    const item = data[i];
+
+    const isSwingHigh =
+      item.high >= data[i - 1].high &&
+      item.high >= data[i - 2].high &&
+      item.high > data[i + 1].high &&
+      item.high > data[i + 2].high;
+
+    const isSwingLow =
+      item.low <= data[i - 1].low &&
+      item.low <= data[i - 2].low &&
+      item.low < data[i + 1].low &&
+      item.low < data[i + 2].low;
+
+    if (isSwingHigh && item.high > latestClose) {
+      swingHighs.push(item.high);
+    }
+
+    if (isSwingLow && item.low < latestClose) {
+      swingLows.push(item.low);
+    }
+  }
+
+  // If no swing point exists, use nearby highs/lows.
+  const resistanceCandidates = swingHighs.length
+    ? swingHighs
+    : data.map(item => item.high)
+        .filter(price => price > latestClose);
+
+  const supportCandidates = swingLows.length
+    ? swingLows
+    : data.map(item => item.low)
+        .filter(price => price < latestClose);
+
+  // Closest resistance above price; closest support below.
+  const recentResistance = resistanceCandidates.length
+    ? Math.min(...resistanceCandidates)
+    : null;
+
+  const recentSupport = supportCandidates.length
+    ? Math.max(...supportCandidates)
+    : null;
+
+  $("recentResistance").textContent =
+    recentResistance !== null
+      ? money(recentResistance)
+      : "No clear level";
+
+  $("recentSupport").textContent =
+    recentSupport !== null
+      ? money(recentSupport)
+      : "No clear level";
+
+  // Draw resistance line.
+  if (recentResistance !== null) {
+    const yy = y(recentResistance);
+
+    add("line", {
+      x1: left,
+      x2: W - right,
+      y1: yy,
+      y2: yy,
+      stroke: "#dc4545",
+      "stroke-width": "1.5",
+      "stroke-dasharray": "6 4"
+    });
+
+    add("text", {
+      x: W - right - 3,
+      y: yy - 5,
+      fill: "#dc4545",
+      "font-size": "11",
+      "font-weight": "700",
+      "text-anchor": "end"
+    }, "RES " + money(recentResistance));
+  }
+
+  // Draw support line.
+  if (recentSupport !== null) {
+    const yy = y(recentSupport);
+
+    add("line", {
+      x1: left,
+      x2: W - right,
+      y1: yy,
+      y2: yy,
+      stroke: "#17834d",
+      "stroke-width": "1.5",
+      "stroke-dasharray": "6 4"
+    });
+
+    add("text", {
+      x: W - right - 3,
+      y: yy - 5,
+      fill: "#17834d",
+      "font-size": "11",
+      "font-weight": "700",
+      "text-anchor": "end"
+    }, "SUP " + money(recentSupport));
+  }
+  
   /*
     Volume bars
   */
