@@ -1218,7 +1218,77 @@ function drawChart(){
     stroke: "#e5e8ef",
     "stroke-width": "1"
   });
+  // HOVER TOOLTIP
+  const tooltip = $("chartTooltip");
 
+  if (tooltip) {
+    const wrap = svg.parentElement;
+
+    svg.onmousemove = function(event) {
+      if (!data.length) return;
+
+      const rect = svg.getBoundingClientRect();
+      const svgX = (event.clientX - rect.left) / rect.width * W;
+
+      const ratio = Math.max(
+        0,
+        Math.min(1, (svgX - left) / chartWidth)
+      );
+
+      const index = Math.round(ratio * (data.length - 1));
+      const item = data[index];
+      if (!item) return;
+
+      const change = item.open
+        ? ((item.close - item.open) / item.open) * 100
+        : 0;
+
+      const direction = change >= 0 ? "up" : "down";
+      const ma20Value = ma20[index];
+      const ma50Value = ma50[index];
+
+      tooltip.innerHTML = `
+        <b>${item.date}</b><br>
+        <span class="${direction}">
+          ${change >= 0 ? "+" : ""}${change.toFixed(2)}%
+        </span>
+        <br><br>
+        Open: <b>${money(item.open)}</b><br>
+        High: <b>${money(item.high)}</b><br>
+        Low: <b>${money(item.low)}</b><br>
+        Close: <b>${money(item.close)}</b><br>
+        Volume: <b>${compactNumber(item.volume)}</b>
+        ${ma20Value !== null ? `<br>MA20: <b>${money(ma20Value)}</b>` : ""}
+        ${ma50Value !== null ? `<br>MA50: <b>${money(ma50Value)}</b>` : ""}
+      `;
+
+      tooltip.style.display = "block";
+
+      const wrapRect = wrap.getBoundingClientRect();
+      const mouseX = event.clientX - wrapRect.left;
+      const mouseY = event.clientY - wrapRect.top;
+
+      let x = mouseX + 12;
+      let y = mouseY - 30;
+
+      if (x + tooltip.offsetWidth > wrapRect.width) {
+        x = mouseX - tooltip.offsetWidth - 12;
+      }
+
+      x = Math.max(4, x);
+      y = Math.max(
+        4,
+        Math.min(y, wrapRect.height - tooltip.offsetHeight - 4)
+      );
+
+      tooltip.style.left = x + "px";
+      tooltip.style.top = y + "px";
+    };
+
+    svg.onmouseleave = function() {
+      tooltip.style.display = "none";
+    };
+  }
 }
 
 
