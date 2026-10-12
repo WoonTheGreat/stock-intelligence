@@ -1344,35 +1344,37 @@ function drawChart(){
     "stroke-width": "1"
   });
   
-  // HOVER TOOLTIP + CROSSHAIR DOT
-  const tooltip = $("chartTooltip");
+ 
+    // Create crosshair directly as an SVG element
+    const crosshair = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "line"
+    );
 
-  if (tooltip) {
-    const wrap = svg.parentElement;
+    crosshair.setAttribute("x1", left);
+    crosshair.setAttribute("x2", left);
+    crosshair.setAttribute("y1", top);
+    crosshair.setAttribute("y2", volumeBottom);
+    crosshair.setAttribute("stroke", "#8b95a7");
+    crosshair.setAttribute("stroke-width", "1");
+    crosshair.setAttribute("stroke-dasharray", "4 4");
+    crosshair.setAttribute("opacity", "0");
+    crosshair.setAttribute("pointer-events", "none");
 
-    // Create crosshair elements
-    const crosshair = add("line", {
-      x1: left,
-      x2: left,
-      y1: top,
-      y2: volumeBottom,
-      stroke: "#8b95a7",
-      "stroke-width": "1",
-      "stroke-dasharray": "4 4",
-      opacity: "0",
-      "pointer-events": "none"
-    });
+    // Create hover dot directly as an SVG element
+    const hoverDot = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
 
-    const hoverDot = add("circle", {
-      cx: left,
-      cy: top,
-      r: "5",
-      fill: "#ffffff",
-      stroke: "#1769ff",
-      "stroke-width": "3",
-      opacity: "0",
-      "pointer-events": "none"
-    });
+    hoverDot.setAttribute("cx", left);
+    hoverDot.setAttribute("cy", top);
+    hoverDot.setAttribute("r", "5");
+    hoverDot.setAttribute("fill", "#ffffff");
+    hoverDot.setAttribute("stroke", "#1769ff");
+    hoverDot.setAttribute("stroke-width", "3");
+    hoverDot.setAttribute("opacity", "0");
+    hoverDot.setAttribute("pointer-events", "none");
 
     // Keep indicators above the chart lines
     svg.appendChild(crosshair);
