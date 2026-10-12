@@ -1343,11 +1343,40 @@ function drawChart(){
     stroke: "#e5e8ef",
     "stroke-width": "1"
   });
-  // HOVER TOOLTIP
+  
+  // HOVER TOOLTIP + CROSSHAIR DOT
   const tooltip = $("chartTooltip");
 
   if (tooltip) {
     const wrap = svg.parentElement;
+
+    // Create crosshair elements
+    const crosshair = add("line", {
+      x1: left,
+      x2: left,
+      y1: top,
+      y2: volumeBottom,
+      stroke: "#8b95a7",
+      "stroke-width": "1",
+      "stroke-dasharray": "4 4",
+      opacity: "0",
+      "pointer-events": "none"
+    });
+
+    const hoverDot = add("circle", {
+      cx: left,
+      cy: top,
+      r: "5",
+      fill: "#ffffff",
+      stroke: "#1769ff",
+      "stroke-width": "3",
+      opacity: "0",
+      "pointer-events": "none"
+    });
+
+    // Keep indicators above the chart lines
+    svg.appendChild(crosshair);
+    svg.appendChild(hoverDot);
 
     svg.onmousemove = function(event) {
       if (!data.length) return;
@@ -1363,6 +1392,18 @@ function drawChart(){
       const index = Math.round(ratio * (data.length - 1));
       const item = data[index];
       if (!item) return;
+
+      // Snap the indicator to the selected date and closing price
+      const pointX = left + (index / Math.max(1, data.length - 1)) * chartWidth;
+      const pointY = y(item.close);
+
+      crosshair.setAttribute("x1", pointX);
+      crosshair.setAttribute("x2", pointX);
+      crosshair.setAttribute("opacity", "1");
+
+      hoverDot.setAttribute("cx", pointX);
+      hoverDot.setAttribute("cy", pointY);
+      hoverDot.setAttribute("opacity", "1");
 
       const change = item.open
         ? ((item.close - item.open) / item.open) * 100
@@ -1394,27 +1435,28 @@ function drawChart(){
       const mouseY = event.clientY - wrapRect.top;
 
       let x = mouseX + 12;
-      let y = mouseY - 30;
+      let tooltipY = mouseY - 30;
 
       if (x + tooltip.offsetWidth > wrapRect.width) {
         x = mouseX - tooltip.offsetWidth - 12;
       }
 
       x = Math.max(4, x);
-      y = Math.max(
+      tooltipY = Math.max(
         4,
-        Math.min(y, wrapRect.height - tooltip.offsetHeight - 4)
+        Math.min(tooltipY, wrapRect.height - tooltip.offsetHeight - 4)
       );
 
       tooltip.style.left = x + "px";
-      tooltip.style.top = y + "px";
+      tooltip.style.top = tooltipY + "px";
     };
 
     svg.onmouseleave = function() {
       tooltip.style.display = "none";
+      crosshair.setAttribute("opacity", "0");
+      hoverDot.setAttribute("opacity", "0");
     };
   }
-}
 
 
 
