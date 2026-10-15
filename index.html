@@ -1021,11 +1021,21 @@ function drawChart(){
       item.low < data[i + 1].low &&
       item.low < data[i + 2].low;
 
-    if (isSwingHigh && item.high > latestClose) {
+     // Ignore levels within 1% of the current price
+    // to reduce overlap with the current-price guide.
+    const minLevelDistance = latestClose * 0.01;
+
+    if (
+      isSwingHigh &&
+      item.high > latestClose + minLevelDistance
+    ) {
       swingHighs.push(item.high);
     }
 
-    if (isSwingLow && item.low < latestClose) {
+    if (
+      isSwingLow &&
+      item.low < latestClose - minLevelDistance
+    ) {
       swingLows.push(item.low);
     }
   }
@@ -1034,12 +1044,12 @@ function drawChart(){
   const resistanceCandidates = swingHighs.length
     ? swingHighs
     : data.map(item => item.high)
-        .filter(price => price > latestClose);
+        .filter(price => price > latestClose + minLevelDistance);
 
   const supportCandidates = swingLows.length
     ? swingLows
     : data.map(item => item.low)
-        .filter(price => price < latestClose);
+        .filter(price => price < latestClose - minLevelDistance);
 
   // Closest resistance above price; closest support below.
   const recentResistance = resistanceCandidates.length
