@@ -1002,6 +1002,7 @@ function drawChart(){
   */
 
   const latestClose = data[data.length - 1].close;
+  const minLevelDistance = latestClose * 0.01;
   const swingHighs = [];
   const swingLows = [];
 
@@ -1023,7 +1024,6 @@ function drawChart(){
 
      // Ignore levels within 1% of the current price
     // to reduce overlap with the current-price guide.
-    const minLevelDistance = latestClose * 0.01;
 
     if (
       isSwingHigh &&
