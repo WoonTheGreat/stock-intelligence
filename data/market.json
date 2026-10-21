@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-21T01:01:57.508185+00:00",
+  "updatedAt": "2026-10-21T06:04:10.868002+00:00",
   "symbol": "MU",
   "quote": {
     "symbol": "MU",
@@ -10,15 +10,15 @@
     "datetime": "2026-10-20",
     "timestamp": 1792503000,
     "last_quote_at": 1792526340,
-    "open": "884.125",
+    "open": "884.13000",
     "high": "918.89001",
     "low": "881.52002",
     "close": "896.070007",
-    "volume": "19362385",
+    "volume": "20068400",
     "previous_close": "904.90002",
     "change": "-8.83002",
     "percent_change": "-0.97580029",
-    "average_volume": "27645638",
+    "average_volume": "27716240",
     "is_market_open": false,
     "fifty_two_week": {
       "low": "192.39999",
@@ -43,11 +43,11 @@
     "values": [
       {
         "datetime": "2026-10-20",
-        "open": "884.125",
+        "open": "884.13000",
         "high": "918.89001",
         "low": "881.52002",
         "close": "896.070007",
-        "volume": "19362385"
+        "volume": "20068400"
       },
       {
         "datetime": "2026-10-19",
