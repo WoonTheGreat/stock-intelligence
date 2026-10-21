@@ -1176,11 +1176,13 @@ function drawChart(){
       CANDLESTICKS
     */
 
-    const candleWidth =
-      Math.max(
-        2,
-        (chartWidth / Math.max(data.length, 1)) * 0.55
-      );
+    const candleWidth = Math.min(
+    14,
+    Math.max(
+    3,
+    (chartWidth / Math.max(data.length, 1)) * 0.62
+  )
+);
 
     data.forEach((item, i) => {
 
@@ -1215,7 +1217,7 @@ function drawChart(){
         y1: highY,
         y2: lowY,
         stroke: color,
-        "stroke-width": "1.3"
+        "stroke-width": "1.5"
       });
 
       /*
