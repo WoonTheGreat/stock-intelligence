@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-22T13:09:04.684264+00:00",
+  "updatedAt": "2026-10-22T18:00:37.832228+00:00",
   "symbol": "MU",
   "quote": {
     "symbol": "MU",
@@ -7,26 +7,26 @@
     "exchange": "NASDAQ",
     "mic_code": "XNGS",
     "currency": "USD",
-    "datetime": "2026-10-21",
-    "timestamp": 1792589400,
-    "last_quote_at": 1792612740,
-    "open": "923.73999",
-    "high": "928.45001",
-    "low": "889.45001",
-    "close": "913.66998",
-    "volume": "20834800",
-    "previous_close": "896.070007",
-    "change": "17.59998",
-    "percent_change": "1.96413",
-    "average_volume": "26737350",
-    "is_market_open": false,
+    "datetime": "2026-10-22",
+    "timestamp": 1792675800,
+    "last_quote_at": 1792692000,
+    "open": "880.01",
+    "high": "908.16",
+    "low": "854.735",
+    "close": "863.86",
+    "volume": "694350",
+    "previous_close": "913.66998",
+    "change": "-49.80998",
+    "percent_change": "-5.45164",
+    "average_volume": "23815715",
+    "is_market_open": true,
     "fifty_two_week": {
       "low": "192.39999",
       "high": "1255",
-      "low_change": "721.26999",
-      "high_change": "-341.33002",
-      "low_change_percent": "374.88046",
-      "high_change_percent": "-27.19761",
+      "low_change": "671.46001",
+      "high_change": "-391.14",
+      "low_change_percent": "348.99170",
+      "high_change_percent": "-31.16653",
       "range": "192.399994 - 1255.000000"
     }
   },
@@ -41,6 +41,14 @@
       "type": "Common Stock"
     },
     "values": [
+      {
+        "datetime": "2026-10-22",
+        "open": "880.01",
+        "high": "908.16",
+        "low": "854.735",
+        "close": "863.86",
+        "volume": "694350"
+      },
       {
         "datetime": "2026-10-21",
         "open": "923.73999",
@@ -2048,14 +2056,6 @@
         "low": "192.39999",
         "close": "198.47000",
         "volume": "21949800"
-      },
-      {
-        "datetime": "2025-10-21",
-        "open": "204.30000",
-        "high": "205.87000",
-        "low": "200.84000",
-        "close": "202.28999",
-        "volume": "13717300"
       }
     ],
     "status": "ok"
