@@ -1,3 +1,4 @@
+
 name: Update Market Data
 
 on:
@@ -16,45 +17,100 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch MU market data
+      - name: Fetch market data for all watchlist stocks
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
         run: |
+          set -e
           mkdir -p data
 
-          echo "Fetching MU quote..."
+          FETCH_HISTORY=0
 
-          curl -s \
-            "https://api.twelvedata.com/quote?symbol=MU&apikey=${TWELVE_DATA_API_KEY}" \
-            -o /tmp/mu_quote.json
+          # Fetch all histories on first run and refresh daily.
+          if [ ! -f data/market.json ] ||
+             ! grep -q '"AMD"' data/market.json ||
+             { [ "$(date -u +%H)" = "00" ] &&
+               [ "$(date -u +%M)" -lt 20 ]; }; then
+            FETCH_HISTORY=1
+          fi
 
-          echo "Fetching MU historical data..."
+          for SYMBOL in MU NVDA TSLA AMD; do
+            echo "Fetching ${SYMBOL} quote..."
 
-          curl -s \
-            "https://api.twelvedata.com/time_series?symbol=MU&interval=1day&outputsize=252&apikey=${TWELVE_DATA_API_KEY}" \
-            -o /tmp/mu_history.json
+            curl -fsS \
+              "https://api.twelvedata.com/quote?symbol=${SYMBOL}&apikey=${TWELVE_DATA_API_KEY}" \
+              -o "/tmp/${SYMBOL}_quote.json"
+
+            if [ "$FETCH_HISTORY" = "1" ]; then
+              echo "Fetching ${SYMBOL} daily history..."
+
+              curl -fsS \
+                "https://api.twelvedata.com/time_series?symbol=${SYMBOL}&interval=1day&outputsize=252&apikey=${TWELVE_DATA_API_KEY}" \
+                -o "/tmp/${SYMBOL}_history.json"
+            fi
+          done
 
           python - <<'PY'
           import json
+          import os
           from datetime import datetime, timezone
 
-          with open("/tmp/mu_quote.json") as f:
-              quote = json.load(f)
+          symbols = ["MU", "NVDA", "TSLA", "AMD"]
+          path = "data/market.json"
 
-          with open("/tmp/mu_history.json") as f:
-              history = json.load(f)
+          try:
+              with open(path) as f:
+                  old = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError):
+              old = {}
+
+          stocks = old.get("stocks", {})
+
+          for symbol in symbols:
+              with open(f"/tmp/{symbol}_quote.json") as f:
+                  quote = json.load(f)
+
+              if quote.get("status") == "error" or "close" not in quote:
+                  raise RuntimeError(
+                      f"{symbol} quote failed: {quote}"
+                  )
+
+              previous = stocks.get(symbol, {})
+              history = previous.get("history")
+
+              history_path = f"/tmp/{symbol}_history.json"
+
+              if os.path.exists(history_path):
+                  with open(history_path) as f:
+                      history = json.load(f)
+
+                  if history.get("status") == "error" or not history.get("values"):
+                      raise RuntimeError(
+                          f"{symbol} history failed: {history}"
+                      )
+
+              if not history or not history.get("values"):
+                  raise RuntimeError(
+                      f"No saved history available for {symbol}"
+                  )
+
+              stocks[symbol] = {
+                  "quote": quote,
+                  "history": history
+              }
 
           output = {
               "updatedAt": datetime.now(timezone.utc).isoformat(),
               "symbol": "MU",
-              "quote": quote,
-              "history": history
+              "quote": stocks["MU"]["quote"],
+              "history": stocks["MU"]["history"],
+              "stocks": stocks
           }
 
-          with open("data/market.json", "w") as f:
+          with open(path, "w") as f:
               json.dump(output, f, indent=2)
 
-          print("Market data saved successfully.")
+          print("Saved market data for:", ", ".join(symbols))
           PY
 
       - name: Commit updated market data
@@ -67,6 +123,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Update MU market data"
+            git commit -m "Update market data for watchlist"
             git push
           fi
