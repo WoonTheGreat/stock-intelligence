@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-22T21:38:56.654372+00:00",
+  "updatedAt": "2026-10-23T00:11:30.599208+00:00",
   "symbol": "MU",
   "quote": {
     "symbol": "MU",
@@ -13,20 +13,20 @@
     "open": "880.080017",
     "high": "908.29999",
     "low": "849.25",
-    "close": "857.010010",
-    "volume": "57246966",
+    "close": "856.48999",
+    "volume": "31922936",
     "previous_close": "913.66998",
-    "change": "-56.65997",
-    "percent_change": "-6.20136",
-    "average_volume": "29470977",
+    "change": "-57.17999",
+    "percent_change": "-6.25828",
+    "average_volume": "26958594",
     "is_market_open": false,
     "fifty_two_week": {
       "low": "192.39999",
       "high": "1255",
-      "low_change": "664.61002",
-      "high_change": "-397.98999",
-      "low_change_percent": "345.43141",
-      "high_change_percent": "-31.71235",
+      "low_change": "664.089996",
+      "high_change": "-398.51001",
+      "low_change_percent": "345.16113",
+      "high_change_percent": "-31.75379",
       "range": "192.399994 - 1255.000000"
     }
   },
@@ -46,8 +46,8 @@
         "open": "880.080017",
         "high": "908.29999",
         "low": "849.25",
-        "close": "857.010010",
-        "volume": "57246966"
+        "close": "856.48999",
+        "volume": "31922936"
       },
       {
         "datetime": "2026-10-21",
@@ -55,7 +55,7 @@
         "high": "928.45001",
         "low": "889.45001",
         "close": "913.66998",
-        "volume": "20834800"
+        "volume": "21035000"
       },
       {
         "datetime": "2026-10-20",
