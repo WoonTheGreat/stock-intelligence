@@ -457,6 +457,36 @@ button.active{
 </main>
 
 
+<main id="priceAction" hidden>
+  <section class="card">
+    <h2>Price Action</h2>
+    <p id="priceActionSubtitle">Historical price data for the selected ticker</p>
+
+    <div style="overflow-x:auto;">
+      <table id="priceActionTable" style="width:100%; border-collapse:collapse; text-align:right;">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding:12px;">Date</th>
+            <th style="padding:12px;">Open</th>
+            <th style="padding:12px;">High</th>
+            <th style="padding:12px;">Low</th>
+            <th style="padding:12px;">Close</th>
+            <th style="padding:12px;">Change %</th>
+            <th style="padding:12px;">Volume</th>
+          </tr>
+        </thead>
+        <tbody id="priceActionBody">
+          <tr>
+            <td colspan="7" style="padding:16px; text-align:center;">
+              Loading price data...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
 <main id="signals" class="hidden">
 
 <div class="cols">
