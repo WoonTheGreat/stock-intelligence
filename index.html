@@ -461,7 +461,11 @@ button.active{
   <section class="card">
     <h2>Price Action</h2>
     <p id="priceActionSubtitle">Historical price data for the selected ticker</p>
-
+    <div class="period" id="priceActionPeriod">
+  <button class="active" data-pa-period="day">Day</button>
+  <button data-pa-period="month">Month</button>
+</div>
+    
     <div style="overflow-x:auto;">
       <table id="priceActionTable" style="width:100%; border-collapse:collapse; text-align:right;">
         <thead>
@@ -471,6 +475,7 @@ button.active{
             <th style="padding:12px;">High</th>
             <th style="padding:12px;">Low</th>
             <th style="padding:12px;">Close</th>
+            <th style="padding:12px;">Change ($)</th>
             <th style="padding:12px;">Change %</th>
             <th style="padding:12px;">Volume</th>
           </tr>
