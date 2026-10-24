@@ -558,8 +558,9 @@ button.active{
 <script>
 
 let marketData = null;
+let currentSymbol = "MU";
 let chartMode = "line";
-let selectedPeriod = "1M";
+let selectedPeriod = "1D";
 
 
 const $ = id => document.getElementById(id);
@@ -602,28 +603,45 @@ function average(values){
 }
 
 
-function getHistory(){
 
-  if(
-    !marketData ||
-    !marketData.history ||
-    !Array.isArray(marketData.history.values)
-  ){
+function getCurrentStock() {
+  if (!marketData) return null;
+
+  return marketData.stocks?.[currentSymbol] ||
+    (currentSymbol === "MU"
+      ? {
+          quote: marketData.quote,
+          history: marketData.history
+        }
+      : null);
+}
+
+function getHistory() {
+  const stock = getCurrentStock();
+  const history = stock?.history;
+
+  if (!history || !Array.isArray(history.values)) {
     return [];
   }
 
-  return marketData.history.values
+  return history.values
     .map(x => ({
-      date:x.datetime,
-      open:Number(x.open),
-      high:Number(x.high),
-      low:Number(x.low),
-      close:Number(x.close),
-      volume:Number(x.volume)
+      date: x.datetime,
+      open: Number(x.open),
+      high: Number(x.high),
+      low: Number(x.low),
+      close: Number(x.close),
+      volume: Number(x.volume)
     }))
-    .filter(x => Number.isFinite(x.close))
+    .filter(x =>
+      Number.isFinite(x.close) &&
+      Number.isFinite(x.open) &&
+      Number.isFinite(x.high) &&
+      Number.isFinite(x.low)
+    )
     .reverse();
 }
+
 
 
 function getPeriodData(){
@@ -703,11 +721,12 @@ function calculateTrend(){
 }
 
 
-function updateDashboard(){
+function updateDashboard() {
+  const stock = getCurrentStock();
 
-  if(!marketData || !marketData.quote) return;
+  if (!stock || !stock.quote) return;
 
-  const q = marketData.quote;
+  const q = stock.quote;
 
   const price = Number(q.close);
   const change = Number(q.change);
@@ -1508,6 +1527,30 @@ async function loadMarketData(){
 
 }
 
+
+/* Watchlist ticker buttons */
+
+document
+  .querySelectorAll("#watchlist button[data-symbol]")
+  .forEach(button => {
+    button.onclick = () => {
+      currentSymbol = button.dataset.symbol;
+
+      document
+        .querySelectorAll("#watchlist button[data-symbol]")
+        .forEach(item => {
+          item.classList.toggle(
+            "active",
+            item.dataset.symbol === currentSymbol
+          );
+        });
+
+      $("quoteStatus").textContent = "Loading " + currentSymbol + "...";
+
+      updateDashboard();
+      drawChart();
+    };
+  });
 
 /* Line / candle buttons */
 
