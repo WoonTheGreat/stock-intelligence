@@ -457,7 +457,7 @@ button.active{
 </main>
 
 
-<main id="priceAction" hidden>
+<main id="priceAction" class="hidden">
   <section class="card">
     <h2>Price Action</h2>
     <p id="priceActionSubtitle">Historical price data for the selected ticker</p>
@@ -691,6 +691,65 @@ function getPeriodData(){
   const count = counts[selectedPeriod] || 22;
 
   return history.slice(-count);
+}
+
+function renderPriceAction() {
+  const body = $("priceActionBody");
+  const subtitle = $("priceActionSubtitle");
+
+  if (!marketData) return;
+
+  const history = getHistory();
+  const rows = getPeriodData().slice().reverse();
+
+  subtitle.textContent =
+    `${currentSymbol} · ${selectedPeriod} · ${rows.length} trading sessions · Latest date first`;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" style="padding:16px;text-align:center;">
+          No historical data available for ${currentSymbol}.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  body.innerHTML = rows.map(item => {
+    const index = history.findIndex(x => x.date === item.date);
+    const previous = index > 0 ? history[index - 1] : null;
+
+    const change = previous && previous.close
+      ? ((item.close - previous.close) / previous.close) * 100
+      : null;
+
+    const changeText = change === null
+      ? "—"
+      : `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
+
+    const changeColor = change === null
+      ? "#667085"
+      : change >= 0 ? "#17834d" : "#bd3838";
+
+    const volume = Number.isFinite(item.volume)
+      ? compactNumber(item.volume)
+      : "—";
+
+    return `
+      <tr style="border-top:1px solid #edf0f4;">
+        <td style="text-align:left;padding:12px;white-space:nowrap;">
+          ${item.date}
+        </td>
+        <td style="padding:12px;white-space:nowrap;">${money(item.open)}</td>
+        <td style="padding:12px;white-space:nowrap;">${money(item.high)}</td>
+        <td style="padding:12px;white-space:nowrap;">${money(item.low)}</td>
+        <td style="padding:12px;white-space:nowrap;font-weight:700;">${money(item.close)}</td>
+        <td style="padding:12px;white-space:nowrap;color:${changeColor};font-weight:700;">
+          ${changeText}
+        </td>
+        <td style="padding:12px;white-space:nowrap;">${volume}</td>
+      </tr>`;
+  }).join("");
 }
 
 
@@ -1569,6 +1628,8 @@ async function loadMarketData(){
 
     drawChart();
 
+    renderPriceAction();
+
   }catch(error){
 
     console.error(error);
@@ -1604,6 +1665,7 @@ document
 
       updateDashboard();
       drawChart();
+      renderPriceAction();
     };
   });
 
@@ -1651,6 +1713,7 @@ document
       button.dataset.period;
 
     drawChart();
+    renderPriceAction();
 
   };
 
