@@ -698,6 +698,7 @@ function getPeriodData(){
   return history.slice(-count);
 }
 
+
 function renderPriceAction() {
   const body = $("priceActionBody");
   const subtitle = $("priceActionSubtitle");
@@ -705,15 +706,80 @@ function renderPriceAction() {
   if (!marketData) return;
 
   const history = getHistory();
-  const rows = getPeriodData().slice().reverse();
+  const mode = document.querySelector(
+    '#priceActionPeriod button.active'
+  )?.dataset.paPeriod || "day";
 
-  subtitle.textContent =
-    `${currentSymbol} · ${selectedPeriod} · ${rows.length} trading sessions · Latest date first`;
+  let rows = [];
+
+  if (mode === "day") {
+    rows = getPeriodData().slice().reverse().map(item => {
+      const index = history.findIndex(x => x.date === item.date);
+      const previous = index > 0 ? history[index - 1] : null;
+
+      return {
+        date: item.date,
+        open: item.open,
+        high: item.high,
+        low: item.low,
+        close: item.close,
+        volume: item.volume,
+        changeDollar: previous ? item.close - previous.close : null,
+        changePercent: previous && previous.close !== 0
+          ? ((item.close - previous.close) / previous.close) * 100
+          : null
+      };
+    });
+  } else {
+    const months = {};
+
+    history.forEach(item => {
+      const month = item.date.slice(0, 7);
+      if (!months[month]) months[month] = [];
+      months[month].push(item);
+    });
+
+    const monthKeys = Object.keys(months).sort();
+    const previousMonthClose = {};
+
+    monthKeys.forEach((month, i) => {
+      previousMonthClose[month] = i > 0
+        ? months[monthKeys[i - 1]].at(-1).close
+        : null;
+    });
+
+    rows = monthKeys.slice(-12).reverse().map(month => {
+      const items = months[month];
+      const previousClose = previousMonthClose[month];
+      const firstOpen = items[0].open;
+      const high = Math.max(...items.map(x => x.high));
+      const low = Math.min(...items.map(x => x.low));
+      const close = items[items.length - 1].close;
+      const volume = items.reduce((sum, x) => sum + (x.volume || 0), 0);
+
+      return {
+        date: month,
+        open: firstOpen,
+        high,
+        low,
+        close,
+        volume,
+        changeDollar: previousClose !== null ? close - previousClose : null,
+        changePercent: previousClose
+          ? ((close - previousClose) / previousClose) * 100
+          : null
+      };
+    });
+  }
+
+  subtitle.textContent = mode === "day"
+    ? `${currentSymbol} · ${selectedPeriod} · ${rows.length} trading sessions · Latest date first`
+    : `${currentSymbol} · Monthly summary · Latest month first`;
 
   if (!rows.length) {
     body.innerHTML = `
       <tr>
-        <td colspan="7" style="padding:16px;text-align:center;">
+        <td colspan="8" style="padding:16px;text-align:center;">
           No historical data available for ${currentSymbol}.
         </td>
       </tr>`;
@@ -721,41 +787,34 @@ function renderPriceAction() {
   }
 
   body.innerHTML = rows.map(item => {
-    const index = history.findIndex(x => x.date === item.date);
-    const previous = index > 0 ? history[index - 1] : null;
-
-    const change = previous && previous.close
-      ? ((item.close - previous.close) / previous.close) * 100
-      : null;
-
-    const changeText = change === null
-      ? "—"
-      : `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
-
-    const changeColor = change === null
+    const dollar = item.changeDollar;
+    const percent = item.changePercent;
+    const color = dollar === null
       ? "#667085"
-      : change >= 0 ? "#17834d" : "#bd3838";
+      : dollar >= 0 ? "#17834d" : "#bd3838";
 
-    const volume = Number.isFinite(item.volume)
-      ? compactNumber(item.volume)
-      : "—";
+    const dollarText = dollar === null
+      ? "—"
+      : `${dollar >= 0 ? "+" : "−"}${money(Math.abs(dollar))}`;
+
+    const percentText = percent === null
+      ? "—"
+      : `${percent >= 0 ? "+" : ""}${percent.toFixed(2)}%`;
 
     return `
       <tr style="border-top:1px solid #edf0f4;">
-        <td style="text-align:left;padding:12px;white-space:nowrap;">
-          ${item.date}
-        </td>
+        <td style="text-align:left;padding:12px;white-space:nowrap;">${item.date}</td>
         <td style="padding:12px;white-space:nowrap;">${money(item.open)}</td>
         <td style="padding:12px;white-space:nowrap;">${money(item.high)}</td>
         <td style="padding:12px;white-space:nowrap;">${money(item.low)}</td>
         <td style="padding:12px;white-space:nowrap;font-weight:700;">${money(item.close)}</td>
-        <td style="padding:12px;white-space:nowrap;color:${changeColor};font-weight:700;">
-          ${changeText}
-        </td>
-        <td style="padding:12px;white-space:nowrap;">${volume}</td>
+        <td style="padding:12px;white-space:nowrap;color:${color};font-weight:700;">${dollarText}</td>
+        <td style="padding:12px;white-space:nowrap;color:${color};font-weight:700;">${percentText}</td>
+        <td style="padding:12px;white-space:nowrap;">${compactNumber(item.volume)}</td>
       </tr>`;
   }).join("");
 }
+
 
 
 function calculateTrend(){
@@ -1702,27 +1761,32 @@ $("candleBtn").onclick = ()=>{
 
 /* Period buttons */
 
-document
-.querySelectorAll(".period button")
-.forEach(button => {
 
-  button.onclick = ()=>{
-
-    document
-    .querySelectorAll(".period button")
-    .forEach(x=>x.classList.remove("active"));
+/* Chart period buttons */
+document.querySelectorAll('button[data-period]').forEach(button => {
+  button.onclick = () => {
+    document.querySelectorAll('button[data-period]')
+      .forEach(x => x.classList.remove("active"));
 
     button.classList.add("active");
-
-    selectedPeriod =
-      button.dataset.period;
+    selectedPeriod = button.dataset.period;
 
     drawChart();
     renderPriceAction();
-
   };
-
 });
+
+/* Price Action Day / Month buttons */
+document.querySelectorAll('button[data-pa-period]').forEach(button => {
+  button.onclick = () => {
+    document.querySelectorAll('button[data-pa-period]')
+      .forEach(x => x.classList.remove("active"));
+
+    button.classList.add("active");
+    renderPriceAction();
+  };
+});
+
 
 
 /* Navigation */
