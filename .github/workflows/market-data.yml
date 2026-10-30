@@ -29,7 +29,7 @@ jobs:
           # Fetch all histories on first run and refresh daily.
           if [ ! -f data/market.json ] ||
              ! grep -q '"AMD"' data/market.json ||
-             { [ "$(date -u +%H)" = "00" ] &&
+             { [ "$(date -u +%H)" = "01" ] &&
                [ "$(date -u +%M)" -lt 20 ]; }; then
             FETCH_HISTORY=1
           fi
