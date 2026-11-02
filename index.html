@@ -461,10 +461,33 @@ button.active{
   <section class="card">
     <h2>Price Action</h2>
     <p id="priceActionSubtitle">Historical price data for the selected ticker</p>
-    <div class="period" id="priceActionPeriod">
+    
+<div class="period" id="priceActionPeriod">
   <button class="active" data-pa-period="day">Day</button>
   <button data-pa-period="month">Month</button>
 </div>
+
+<div id="priceActionTools" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0;">
+  <div class="period" id="priceActionRange">
+    <button data-pa-range="5">5D</button>
+    <button class="active" data-pa-range="22">1M</button>
+    <button data-pa-range="66">3M</button>
+    <button data-pa-range="126">6M</button>
+    <button data-pa-range="252">1Y</button>
+    <button data-pa-range="all">All</button>
+  </div>
+
+  <select id="priceActionSort" style="padding:10px;border:1px solid #dce2ec;border-radius:9px;background:white;color:#344054;">
+    <option value="newest">Newest first</option>
+    <option value="oldest">Oldest first</option>
+    <option value="gain">Biggest gain</option>
+    <option value="loss">Biggest loss</option>
+    <option value="volume">Highest volume</option>
+  </select>
+
+  <button id="exportPriceAction" class="btn">Export CSV</button>
+</div>
+
     
     <div style="overflow-x:auto;">
       <table id="priceActionTable" style="width:100%; border-collapse:collapse; text-align:right;">
@@ -482,7 +505,7 @@ button.active{
         </thead>
         <tbody id="priceActionBody">
           <tr>
-            <td colspan="7" style="padding:16px; text-align:center;">
+            <td colspan="8" style="padding:16px; text-align:center;">
               Loading price data...
             </td>
           </tr>
