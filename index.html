@@ -620,6 +620,7 @@ let marketData = null;
 let currentSymbol = "TSLA";
 let chartMode = "line";
 let selectedPeriod = "1D";
+let priceActionRows = [];
 
 
 const $ = id => document.getElementById(id);
@@ -722,6 +723,7 @@ function getPeriodData(){
 }
 
 
+
 function renderPriceAction() {
   const body = $("priceActionBody");
   const subtitle = $("priceActionSubtitle");
@@ -733,10 +735,26 @@ function renderPriceAction() {
     '#priceActionPeriod button.active'
   )?.dataset.paPeriod || "day";
 
+  const range = document.querySelector(
+    '#priceActionRange button.active'
+  )?.dataset.paRange || "22";
+
   let rows = [];
 
   if (mode === "day") {
-    rows = getPeriodData().slice().reverse().map(item => {
+    const counts = {
+      "5": 5,
+      "22": 22,
+      "66": 66,
+      "126": 126,
+      "252": 252
+    };
+
+    const selectedHistory = range === "all"
+      ? history
+      : history.slice(-(counts[range] || 22));
+
+    rows = selectedHistory.slice().reverse().map(item => {
       const index = history.findIndex(x => x.date === item.date);
       const previous = index > 0 ? history[index - 1] : null;
 
@@ -771,23 +789,33 @@ function renderPriceAction() {
         : null;
     });
 
-    rows = monthKeys.slice(-12).reverse().map(month => {
+    const monthCounts = {
+      "5": 1,
+      "22": 1,
+      "66": 3,
+      "126": 6,
+      "252": 12
+    };
+
+    const monthLimit = range === "all"
+      ? monthKeys.length
+      : monthCounts[range] || 1;
+
+    rows = monthKeys.slice(-monthLimit).reverse().map(month => {
       const items = months[month];
       const previousClose = previousMonthClose[month];
-      const firstOpen = items[0].open;
-      const high = Math.max(...items.map(x => x.high));
-      const low = Math.min(...items.map(x => x.low));
       const close = items[items.length - 1].close;
-      const volume = items.reduce((sum, x) => sum + (x.volume || 0), 0);
 
       return {
         date: month,
-        open: firstOpen,
-        high,
-        low,
+        open: items[0].open,
+        high: Math.max(...items.map(x => x.high)),
+        low: Math.min(...items.map(x => x.low)),
         close,
-        volume,
-        changeDollar: previousClose !== null ? close - previousClose : null,
+        volume: items.reduce((sum, x) => sum + (x.volume || 0), 0),
+        changeDollar: previousClose !== null
+          ? close - previousClose
+          : null,
         changePercent: previousClose
           ? ((close - previousClose) / previousClose) * 100
           : null
@@ -795,9 +823,40 @@ function renderPriceAction() {
     });
   }
 
+  const sort = $("priceActionSort")?.value || "newest";
+
+  if (sort === "newest") {
+    rows.sort((a, b) => b.date.localeCompare(a.date));
+  } else if (sort === "oldest") {
+    rows.sort((a, b) => a.date.localeCompare(b.date));
+  } else if (sort === "gain") {
+    rows.sort((a, b) =>
+      (b.changePercent ?? -Infinity) -
+      (a.changePercent ?? -Infinity)
+    );
+  } else if (sort === "loss") {
+    rows.sort((a, b) =>
+      (a.changePercent ?? Infinity) -
+      (b.changePercent ?? Infinity)
+    );
+  } else if (sort === "volume") {
+    rows.sort((a, b) => b.volume - a.volume);
+  }
+
+  priceActionRows = rows;
+
+  const rangeLabels = {
+    "5": "5D",
+    "22": "1M",
+    "66": "3M",
+    "126": "6M",
+    "252": "1Y",
+    "all": "All"
+  };
+
   subtitle.textContent = mode === "day"
-    ? `${currentSymbol} · ${selectedPeriod} · ${rows.length} trading sessions · Latest date first`
-    : `${currentSymbol} · Monthly summary · Latest month first`;
+    ? `${currentSymbol} · ${rangeLabels[range]} · ${rows.length} trading sessions`
+    : `${currentSymbol} · Monthly summary · ${rows.length} months`;
 
   if (!rows.length) {
     body.innerHTML = `
@@ -812,6 +871,7 @@ function renderPriceAction() {
   body.innerHTML = rows.map(item => {
     const dollar = item.changeDollar;
     const percent = item.changePercent;
+
     const color = dollar === null
       ? "#667085"
       : dollar >= 0 ? "#17834d" : "#bd3838";
@@ -837,6 +897,7 @@ function renderPriceAction() {
       </tr>`;
   }).join("");
 }
+
 
 
 
@@ -1800,6 +1861,8 @@ document.querySelectorAll('button[data-period]').forEach(button => {
 });
 
 /* Price Action Day / Month buttons */
+
+/* Price Action Day / Month buttons */
 document.querySelectorAll('button[data-pa-period]').forEach(button => {
   button.onclick = () => {
     document.querySelectorAll('button[data-pa-period]')
@@ -1809,6 +1872,78 @@ document.querySelectorAll('button[data-pa-period]').forEach(button => {
     renderPriceAction();
   };
 });
+
+/* Price Action date range buttons */
+document.querySelectorAll('button[data-pa-range]').forEach(button => {
+  button.onclick = () => {
+    document.querySelectorAll('button[data-pa-range]')
+      .forEach(x => x.classList.remove("active"));
+
+    button.classList.add("active");
+    renderPriceAction();
+  };
+});
+
+/* Price Action sorting */
+$("priceActionSort").onchange = () => {
+  renderPriceAction();
+};
+
+/* Export displayed Price Action data to CSV */
+$("exportPriceAction").onclick = () => {
+  if (!priceActionRows.length) {
+    alert("No price data available to export.");
+    return;
+  }
+
+  const headers = [
+    "Date",
+    "Open",
+    "High",
+    "Low",
+    "Close",
+    "Change ($)",
+    "Change (%)",
+    "Volume"
+  ];
+
+  const csvRows = [
+    headers,
+    ...priceActionRows.map(item => [
+      item.date,
+      item.open,
+      item.high,
+      item.low,
+      item.close,
+      item.changeDollar ?? "",
+      item.changePercent ?? "",
+      item.volume
+    ])
+  ];
+
+  const csv = csvRows.map(row =>
+    row.map(value =>
+      `"${String(value).replace(/"/g, '""')}"`
+    ).join(",")
+  ).join("\r\n");
+
+  const blob = new Blob(["\uFEFF" + csv], {
+    type: "text/csv;charset=utf-8;"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `${currentSymbol}_price_history.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+};
+
 
 
 
