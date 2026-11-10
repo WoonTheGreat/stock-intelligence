@@ -30,8 +30,8 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] ||
              [ ! -f data/market.json ] ||
              ! grep -q '"AMD"' data/market.json ||
-             { [ "$(date -u +%H)" = "01" ] &&
-              [ "$(date -u +%M)" -lt 20 ]; }; then
+             { [ "$(date -u +%H)" = "03" ] &&
+                [ "$(date -u +%M)" -lt 20 ]; }; then
             FETCH_HISTORY=1
           fi
 
