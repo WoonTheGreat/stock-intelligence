@@ -1385,6 +1385,7 @@ function drawChart(){
       (chartWidth / Math.max(data.length, 1)) * 0.62
     );
 
+  
   data.forEach((item, i) => {
 
     const x = xAt(i);
@@ -1393,8 +1394,7 @@ function drawChart(){
       (item.volume / maxVolume) *
       (volumeBottom - volumeTop);
 
-    const up =
-      item.close >= item.open;
+    const up = item.close >= item.open;
 
     add("rect", {
       x: x - volumeWidth / 2,
@@ -1403,6 +1403,25 @@ function drawChart(){
       height: Math.max(height, 1),
       fill: up ? "#17834d" : "#bd3838",
       opacity: "0.28"
+    });
+
+    // Show volume value above each bar
+    const labelEvery = Math.max(
+      1,
+      Math.ceil(data.length / 30)
+    );
+
+    if (i % labelEvery === 0 || i === data.length - 1) {
+      add("text", {
+        x: x,
+        y: Math.max(volumeTop - 3, volumeBottom - height - 5),
+        fill: "#667085",
+        "font-size": "9",
+        "text-anchor": "middle",
+        "font-weight": "600"
+      }, compactNumber(item.volume));
+    }
+
     });
 
   });
